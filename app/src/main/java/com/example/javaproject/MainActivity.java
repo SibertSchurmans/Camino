@@ -11,6 +11,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+import org.bson.Document;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +33,24 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new HomeFragment()).commit();
         }
+
+
+        // Creating a Mongo client
+        MongoClient mongo = new MongoClient( "171.25.229.102" , 8229 );
+
+        // Creating Credentials
+        MongoCredential credential;
+        credential = MongoCredential.createCredential("admin", "CaminoBackend",
+                "admin".toCharArray());
+        System.out.println("Connected to the database successfully");
+
+        // Accessing the database
+        MongoDatabase database = mongo.getDatabase("CaminoBackend");
+        System.out.println("Credentials ::"+ credential);
+
+        // Retieving a collection
+        MongoCollection<Document> collection = database.getCollection("pointOfInterest");
+        System.out.println("Collection myCollection selected successfully");
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
