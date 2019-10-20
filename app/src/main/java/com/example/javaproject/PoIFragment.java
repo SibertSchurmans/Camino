@@ -31,7 +31,27 @@ public class PoIFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_pointsofinterest, container, false);
         FloatingActionButton mFab = v.findViewById(R.id.floatingActionButton2);
 
-        createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v);
+
+        TextView categoryView = new TextView(getContext());
+
+        categoryView.setText("Kerken");
+        categoryView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
+        categoryView.setPadding(25,25,25,25);
+        categoryView.setTextColor(Color.WHITE);
+        categoryView.setGravity(Gravity.START);
+
+        LinearLayout mainLayout = new LinearLayout(getContext());
+        LinearLayout.LayoutParams mainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
+        mainLayout.setLayoutParams(mainParams);
+        mainLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLayout.addView(categoryView);
+
+        mainLayout.addView(createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
+        mainLayout.addView(createPointOfInterests("Toulouse2", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
+
+        RelativeLayout relativeLayout = v.findViewById(R.id.layout);
+        relativeLayout.addView(mainLayout);
 
         mFab.setOnClickListener(new View.OnClickListener(){
 
@@ -43,9 +63,9 @@ public class PoIFragment extends Fragment {
         return v;
     }
 
-    public void createPointOfInterests(String title, int imageResource, String route, String tags, View v) {
+    public CardView createPointOfInterests(String title, int imageResource, String route, String tags, View v) {
 
-        TextView categoryView = new TextView(getContext());
+
         CardView cardview = new CardView(getContext());
         ImageView imageView = new ImageView(getContext());
         TextView titleView = new TextView(getContext());
@@ -53,15 +73,15 @@ public class PoIFragment extends Fragment {
         TextView tagsView = new TextView(getContext());
 
         LinearLayout linearLayout = new LinearLayout(getContext());
-        LinearLayout mainLayout = new LinearLayout(getContext());
+
         LinearLayout textLayout = new LinearLayout(getContext());
 
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams mainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
         RelativeLayout.LayoutParams cardViewParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(250, 250);
 
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
+
 
         textLayout.setOrientation(LinearLayout.VERTICAL);
         textLayout.setPadding(5,25,5,25);
@@ -105,11 +125,7 @@ public class PoIFragment extends Fragment {
         tagsView.setGravity(Gravity.START);
         tagsView.setLayoutParams(textParams);
 
-        categoryView.setText("Kerken");
-        categoryView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
-        categoryView.setPadding(25,25,25,25);
-        categoryView.setTextColor(Color.WHITE);
-        categoryView.setGravity(Gravity.START);
+
 
         linearLayout.addView(imageView);
 
@@ -123,12 +139,8 @@ public class PoIFragment extends Fragment {
 
         cardview.addView(linearLayout);
 
-        mainLayout.setLayoutParams(mainParams);
-        mainLayout.addView(categoryView);
-        mainLayout.addView(cardview);
+        return cardview;
 
-        RelativeLayout relativeLayout = v.findViewById(R.id.layout);
-        relativeLayout.addView(mainLayout);
     }
 
 }
