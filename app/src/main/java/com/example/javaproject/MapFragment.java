@@ -87,7 +87,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     .build();
         }
 
-        calculateDirections(pos1, pos2);
+        //calculateDirections(pos1, pos2);
     }
 
 
