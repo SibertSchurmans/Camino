@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -48,7 +52,7 @@ public class PoIFragment extends Fragment {
         mainLayout.addView(categoryView);
 
         mainLayout.addView(createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
-        mainLayout.addView(createPointOfInterests("Toulouse2", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
+        mainLayout.addView(createPointOfInterests("Kathedraal van Santiago de Compostella", R.drawable.kathedraal, "Route: Santiago de Compostella", "Tags: Kathedraal, Santiago de Compostella", v));
 
         RelativeLayout relativeLayout = v.findViewById(R.id.layout);
         relativeLayout.addView(mainLayout);
@@ -102,6 +106,8 @@ public class PoIFragment extends Fragment {
         cardview.setMaxCardElevation(30);
         cardview.setMaxCardElevation(6);
 
+
+
         ViewGroup.MarginLayoutParams cardViewMarginParams = (ViewGroup.MarginLayoutParams) cardview.getLayoutParams();
         cardViewMarginParams.setMargins(50, 30, 50, 30);
         cardview.requestLayout();
@@ -137,8 +143,29 @@ public class PoIFragment extends Fragment {
 
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-        cardview.addView(linearLayout);
+        cardview.setOnTouchListener((v1, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Title", title);
+                    bundle.putInt("Image", imageResource);
 
+                    // set Fragmentclass Arguments
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                    PoIClickedFragment fragobj = new PoIClickedFragment();
+                    fragobj.setArguments(bundle);
+
+                    fragmentTransaction.replace(R.id.fragment_container, fragobj);
+                    fragmentTransaction.commit();
+                    //Log.d("poi", title);
+                }
+            }
+            return false;
+        });
+
+        cardview.addView(linearLayout);
         return cardview;
 
     }
