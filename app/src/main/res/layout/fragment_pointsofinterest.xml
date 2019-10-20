@@ -4,7 +4,7 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lightBlue"
+    android:background="@drawable/fragment_background_color"
     android:orientation="vertical">
 
 
