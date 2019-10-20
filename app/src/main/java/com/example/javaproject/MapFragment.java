@@ -1,5 +1,6 @@
 package com.example.javaproject;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,27 +38,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback,
-        GoogleMap.OnPolylineClickListener, GoogleMap.OnInfoWindowClickListener{
+        GoogleMap.OnPolylineClickListener, GoogleMap.OnInfoWindowClickListener {
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private GeoApiContext mGeoApiContext = null;
     private static final String TAG = "marker";
     private ArrayList<PolylineData> mPolylinesData = new ArrayList<>();
     private Marker mSelectedMarker = null;
+    private MarkerOptions santiago, ucll;
+    private Polyline currentPolyLine;
 
-
-    public MapFragment(){
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
     }
 
+    public MapFragment() {
+    }
+
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_map, container, false);
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if(mapFragment == null){
+        if (mapFragment == null) {
             FragmentManager fm = getFragmentManager();
-            FragmentTransaction ft= fm.beginTransaction();
-            mapFragment= SupportMapFragment.newInstance();
+            FragmentTransaction ft = fm.beginTransaction();
+            mapFragment = SupportMapFragment.newInstance();
             ft.replace(R.id.map, mapFragment).commit();
         }
         mapFragment.getMapAsync(this);
@@ -71,6 +78,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         // Add a marker in Sydney and move the camera
         LatLng genk = new LatLng(50.957502, 5.482947);
         LatLng echteHerk = new LatLng(50.956471, 5.183986);
+        LatLng dest = new LatLng(42.878212, -8.544844);
+        LatLng origin = new LatLng(50.90769, 5.41875);
         //mMap.addMarker(new MarkerOptions().position(genk).title("Marker in genk"));
         //mMap.addMarker(new MarkerOptions().position(echteHerk).title("Marker in schulen"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(genk));
@@ -78,20 +87,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         MarkerOptions pos1 = new MarkerOptions().position(genk).title("genk");
         MarkerOptions pos2 = new MarkerOptions().position(echteHerk).title("herk");
 
-        mMap.addMarker(pos1);
-        mMap.addMarker(pos2);
+        santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
+        ucll = new MarkerOptions().position(origin).title("Diepenbeek");
 
-        if(mGeoApiContext == null){
+        mMap.addMarker(santiago);
+        mMap.addMarker(ucll);
+
+        if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder()
                     .apiKey(getString(R.string.google_maps_key))
                     .build();
         }
+        //new FetchURL(MainActivity.this).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "driving"), "driving");
 
-        calculateDirections(pos1, pos2);
+        //calculateDirections(pos1, pos2);
+    }
+
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
     }
 
 
-    private void calculateDirections(MarkerOptions origin, MarkerOptions dest){
+    private void calculateDirections(MarkerOptions origin, MarkerOptions dest) {
 
 
         com.google.maps.model.LatLng destination = new com.google.maps.model.LatLng(
@@ -116,39 +145,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 Log.d(TAG, "onResult: routes: " + result.routes[0].toString());
                 Log.d(TAG, "onResult: geocodedWayPoints: " + result.geocodedWaypoints[0].toString());
 
-                addPolylinesToMap(result);
+                //addPolylinesToMap(result);
             }
 
             @Override
             public void onFailure(Throwable e) {
-                Log.e(TAG, "onFailure: " + e.getMessage() );
+                Log.e(TAG, "onFailure: " + e.getMessage());
 
             }
         });
     }
 
-    private void addPolylinesToMap(final DirectionsResult result){
+    private void addPolylinesToMap(final DirectionsResult result) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "run: result routes: " + result.routes.length);
 
-                if (mPolylinesData.size() > 0){
-                    for (PolylineData polylineData : mPolylinesData){
+                if (mPolylinesData.size() > 0) {
+                    for (PolylineData polylineData : mPolylinesData) {
                         polylineData.getPolyline().remove();
                     }
                     mPolylinesData.clear();
                     mPolylinesData = new ArrayList<>();
                 }
                 double duration = 9999999;
-                for(DirectionsRoute route: result.routes){
+                for (DirectionsRoute route : result.routes) {
                     Log.d(TAG, "run: leg: " + route.legs[0].toString());
                     List<com.google.maps.model.LatLng> decodedPath = PolylineEncoding.decode(route.overviewPolyline.getEncodedPath());
 
                     List<LatLng> newDecodedPath = new ArrayList<>();
 
                     // This loops through all the LatLng coordinates of ONE polyline.
-                    for(com.google.maps.model.LatLng latLng: decodedPath){
+                    for (com.google.maps.model.LatLng latLng : decodedPath) {
 
 //                        Log.d(TAG, "run: latlng: " + latLng.toString());
 
@@ -163,7 +192,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     mPolylinesData.add(new PolylineData(polyline, route.legs[0]));
 
                     double temDuration = route.legs[0].duration.inSeconds;
-                    if(temDuration < duration){
+                    if (temDuration < duration) {
                         duration = temDuration;
                         onPolylineClick(polyline);
                     }
@@ -178,12 +207,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
+
+
     @Override
     public void onPolylineClick(Polyline polyline) {
         int index = 0;
-        for(PolylineData polylineData: mPolylinesData){
+        for (PolylineData polylineData : mPolylinesData) {
             Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
-            if(polyline.getId().equals(polylineData.getPolyline().getId())){
+            if (polyline.getId().equals(polylineData.getPolyline().getId())) {
                 polylineData.getPolyline().setColor(getResources().getColor(R.color.lightBlue));
                 polylineData.getPolyline().setZIndex(1);
 
@@ -199,8 +230,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 );
 
                 marker.showInfoWindow();
-            }
-            else{
+            } else {
                 polylineData.getPolyline().setColor(getResources().getColor(R.color.Gray));
                 polylineData.getPolyline().setZIndex(0);
             }
