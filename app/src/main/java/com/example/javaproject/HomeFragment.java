@@ -1,11 +1,15 @@
 package com.example.javaproject;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 
 public class HomeFragment extends Fragment {
@@ -41,6 +47,7 @@ public class HomeFragment extends Fragment {
         return v;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public CardView createPointOfInterests(String title, int imageResource, String poiNumber, String tags, View v) {
         TextView categoryView = new TextView(getContext());
         CardView cardview = new CardView(getContext());
@@ -50,15 +57,12 @@ public class HomeFragment extends Fragment {
         TextView tagsView = new TextView(getContext());
 
         LinearLayout linearLayout = new LinearLayout(getContext());
-        //LinearLayout mainLayout = new LinearLayout(getContext());
         LinearLayout textLayout = new LinearLayout(getContext());
 
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        //LinearLayout.LayoutParams mainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         RelativeLayout.LayoutParams cardViewParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        //mainLayout.setOrientation(LinearLayout.VERTICAL);
 
         textLayout.setOrientation(LinearLayout.VERTICAL);
         textLayout.setPadding(5,25,5,0);
@@ -69,6 +73,15 @@ public class HomeFragment extends Fragment {
         cardview.setCardBackgroundColor(Color.parseColor("#bd971c"));
         cardview.setMaxCardElevation(15);
         cardview.setMaxCardElevation(6);
+        cardview.getId();
+        cardview.setOnTouchListener((v1, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+
+                }
+            }
+            return false;
+        });
 
         ViewGroup.MarginLayoutParams cardViewMarginParams = (ViewGroup.MarginLayoutParams) cardview.getLayoutParams();
         cardViewMarginParams.setMargins(50, 30, 50, 30);
@@ -107,14 +120,21 @@ public class HomeFragment extends Fragment {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.addView(imageView);
 
+        cardview.setOnTouchListener((v1, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    Intent intent = new Intent(getContext(), HomeRouteClickedActivity.class);
+                    intent.putExtra("EXTRA_TITLE", title);
+                    intent.putExtra("EXTRA_TAGS", tags);
+                    startActivity(intent);
+                }
+            }
+            return false;
+        });
+
         cardview.addView(linearLayout);
 
         return cardview;
-       // mainLayout.setLayoutParams(mainParams);
-       // mainLayout.addView(cardview);
-
-        //RelativeLayout relativeLayout = v.findViewById(R.id.layout);
-        //relativeLayout.addView(mainLayout);
 
     }
 }
