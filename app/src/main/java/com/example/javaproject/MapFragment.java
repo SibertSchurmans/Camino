@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -40,9 +41,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private GeoApiContext mGeoApiContext = null;
     private static final String TAG = "marker";
     private ArrayList<PolylineData> mPolylinesData = new ArrayList<>();
-    private MarkerOptions santiago, ucll;
+    private MarkerOptions santiago, ucll, markerGenk, markerKerk;
     LatLng dest = new LatLng(42.878212, -8.544844);
     LatLng origin = new LatLng(50.90769, 5.41875);
+    LatLng genk = new LatLng(50.957502, 5.482947);
+    LatLng kerk = new LatLng(50.956471, 5.183986);
     private Polyline currentPolyLine;
     private Button navigationButton;
 
@@ -83,9 +86,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
         santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
         ucll = new MarkerOptions().position(origin).title("Diepenbeek");
+        markerGenk = new MarkerOptions().position(genk).title("Genk").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        markerKerk = new MarkerOptions().position(kerk).title("Kerk").icon(BitmapDescriptorFactory.fromAsset("Kerk.png"));
 
         mMap.addMarker(santiago);
         mMap.addMarker(ucll);
+        mMap.addMarker(markerGenk);
+        mMap.addMarker(markerKerk);
 
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder()
@@ -99,6 +106,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 .bearing(0)
                 .tilt(45)
                 .build();
+
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null);
     }
