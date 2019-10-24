@@ -40,8 +40,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private GeoApiContext mGeoApiContext = null;
     private static final String TAG = "marker";
     private ArrayList<PolylineData> mPolylinesData = new ArrayList<>();
-    private Marker mSelectedMarker = null;
     private MarkerOptions santiago, ucll;
+    LatLng dest = new LatLng(42.878212, -8.544844);
+    LatLng origin = new LatLng(50.90769, 5.41875);
     private Polyline currentPolyLine;
     private Button navigationButton;
 
@@ -78,8 +79,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng dest = new LatLng(42.878212, -8.544844);
-        LatLng origin = new LatLng(50.90769, 5.41875);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
 
         santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
@@ -93,6 +92,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     .apiKey(getString(R.string.google_maps_key))
                     .build();
         }
+
+        CameraPosition googlePlex = CameraPosition.builder()
+                .target(origin)
+                .zoom(4)
+                .bearing(0)
+                .tilt(45)
+                .build();
+
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null);
     }
 
     private String getUrl(LatLng origin, LatLng dest, String directionMode) {
@@ -141,9 +149,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onTaskDone(Object... values) {
-        if (currentPolyLine != null)
+        if (currentPolyLine != null){
             currentPolyLine.remove();
-        currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
+        }currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
     @Override

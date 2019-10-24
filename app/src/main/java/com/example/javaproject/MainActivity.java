@@ -92,8 +92,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTaskDone(Object... values) {
-        if (currentPolyLine != null)
+        if (currentPolyLine != null){
             currentPolyLine.remove();
+        }
         currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
     }
 }
