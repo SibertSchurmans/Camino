@@ -1,14 +1,18 @@
 package com.example.javaproject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +21,16 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -32,7 +46,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback,
         GoogleMap.OnPolylineClickListener, TaskLoadedCallback, View.OnClickListener{
@@ -48,6 +66,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     LatLng kerk = new LatLng(50.956471, 5.183986);
     private Polyline currentPolyLine;
     private Button navigationButton;
+    private HashMap<Marker,POI> markerPOIMap=new HashMap();
 
 
 
@@ -93,6 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mMap.addMarker(ucll);
         mMap.addMarker(markerGenk);
         mMap.addMarker(markerKerk);
+        getPOI();
 
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder()
@@ -109,6 +129,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        CustomInfoWindowAdapter adapter = new CustomInfoWindowAdapter(getActivity(), markerPOIMap);
+        mMap.setInfoWindowAdapter(adapter);
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null);
     }
@@ -167,5 +189,50 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onClick(View v) {
         new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
+    }
+
+    public void getPOI() {
+        final RequestQueue requestQueue;
+        Cache cache = new DiskBasedCache((getContext().getCacheDir()), 1024 * 1024);
+        Network network = new BasicNetwork((new HurlStack()));
+        requestQueue = new RequestQueue(cache, network);
+        requestQueue.start();
+        String url = "http://171.25.229.102:8229/point";
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0; i<response.length();i++)
+                {
+                    try {
+                        JSONObject object = response.getJSONObject(i);
+                        String title = object.getString("name");
+                        String description = object.getString("description");
+                        LatLng latLng = new LatLng(object.getDouble("latitude"),object.getDouble("longitude"));
+                        JSONArray bMapArray = object.getJSONArray("photos");
+                        ArrayList<Bitmap> photos = new ArrayList<>();
+                        for(int a=0;a<bMapArray.length();a++)
+                        {
+                            byte[] bytes = Base64.decode(bMapArray.getJSONObject(a).getString("photo"), Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
+                            photos.add(bitmap);
+                        }
+                        POI poi = new POI(title,latLng,mMap,description,markerPOIMap,photos);
+                    }
+                    catch (Exception e)
+                    {
+                        Toast error = Toast.makeText(getContext().getApplicationContext(), e.getMessage(),Toast.LENGTH_LONG);
+                        error.show();
+                    }
+                }
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast fail = Toast.makeText(getContext().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG);
+                fail.show();
+            }
+        });
+        requestQueue.add(jsonArrayRequest);
     }
 }
