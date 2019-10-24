@@ -32,7 +32,8 @@
         android:layout_marginBottom="150dp"
         android:clickable="true"
         app:fabSize="mini"
-        app:srcCompat="@android:drawable/ic_menu_camera" />
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        app:backgroundTint="@android:color/white"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton4"
@@ -44,6 +45,7 @@
         android:layout_marginBottom="100dp"
         android:clickable="true"
         app:fabSize="mini"
-        app:srcCompat="@android:drawable/ic_menu_gallery" />
+        app:srcCompat="@android:drawable/ic_menu_gallery"
+        app:backgroundTint="@android:color/white"/>
 
 </RelativeLayout>
