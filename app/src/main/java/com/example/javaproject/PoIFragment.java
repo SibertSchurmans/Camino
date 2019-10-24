@@ -1,12 +1,15 @@
 package com.example.javaproject;
 
-import android.content.Intent;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,29 +17,52 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class PoIFragment extends Fragment {
+
+   boolean isRotate = false;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_pointsofinterest, container, false);
         FloatingActionButton mFab = v.findViewById(R.id.floatingActionButton2);
+        FloatingActionButton mFab2 = v.findViewById(R.id.floatingActionButton3);
+        FloatingActionButton mFab3 = v.findViewById(R.id.floatingActionButton4);
 
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isRotate = ViewAnimation.rotateFab(v, !isRotate);
+                if(isRotate){
+                    ViewAnimation.showIn(mFab2);
+                    ViewAnimation.showIn(mFab3);
+                }else{
+                    ViewAnimation.showOut(mFab2);
+                    ViewAnimation.showOut(mFab3);
+                }
+
+            }
+        });
+
+        ViewAnimation.init(mFab2);
+        ViewAnimation.init(mFab3);
 
         TextView categoryView = new TextView(getContext());
 
         categoryView.setText("Kerken");
         categoryView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
-        categoryView.setPadding(25,25,25,25);
+        categoryView.setPadding(25, 25, 25, 25);
         categoryView.setTextColor(Color.WHITE);
         categoryView.setGravity(Gravity.START);
 
@@ -48,21 +74,15 @@ public class PoIFragment extends Fragment {
         mainLayout.addView(categoryView);
 
         mainLayout.addView(createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
-        mainLayout.addView(createPointOfInterests("Toulouse2", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
+        mainLayout.addView(createPointOfInterests("Kathedraal van Santiago de Compostella", R.drawable.kathedraal, "Route: Santiago de Compostella", "Tags: Kathedraal, Santiago de Compostella", v));
 
         RelativeLayout relativeLayout = v.findViewById(R.id.layout);
         relativeLayout.addView(mainLayout);
 
-        mFab.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
         return v;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public CardView createPointOfInterests(String title, int imageResource, String route, String tags, View v) {
 
 
@@ -82,16 +102,15 @@ public class PoIFragment extends Fragment {
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(250, 250);
 
 
-
         textLayout.setOrientation(LinearLayout.VERTICAL);
-        textLayout.setPadding(5,25,5,25);
+        textLayout.setPadding(5, 25, 5, 25);
 
-        imageParams.gravity=Gravity.CENTER;
+        imageParams.gravity = Gravity.CENTER;
 
         imageView.setImageResource(imageResource);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imageView.setPadding(0,25,0,25);
+        imageView.setPadding(0, 25, 0, 25);
         imageView.setLayoutParams(imageParams);
 
 
@@ -101,6 +120,17 @@ public class PoIFragment extends Fragment {
         cardview.setCardBackgroundColor(Color.WHITE);
         cardview.setMaxCardElevation(30);
         cardview.setMaxCardElevation(6);
+        cardview.setOnTouchListener((v1, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+
+                }
+            }
+            return false;
+        });
+
+
+
 
         ViewGroup.MarginLayoutParams cardViewMarginParams = (ViewGroup.MarginLayoutParams) cardview.getLayoutParams();
         cardViewMarginParams.setMargins(50, 30, 50, 30);
@@ -120,15 +150,13 @@ public class PoIFragment extends Fragment {
 
         tagsView.setText(tags);
         tagsView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10);
-        tagsView.setPadding(0,50,0,0);
+        tagsView.setPadding(0, 50, 0, 0);
         tagsView.setTextColor(Color.BLUE);
         tagsView.setGravity(Gravity.START);
         tagsView.setLayoutParams(textParams);
 
 
-
         linearLayout.addView(imageView);
-
         textLayout.addView(titleView);
         textLayout.addView(routeView);
         textLayout.addView(tagsView);
@@ -137,8 +165,29 @@ public class PoIFragment extends Fragment {
 
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-        cardview.addView(linearLayout);
+        cardview.setOnTouchListener((v1, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Title", title);
+                    bundle.putInt("Image", imageResource);
 
+                    // set Fragmentclass Arguments
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                    PoIClickedFragment fragobj = new PoIClickedFragment();
+                    fragobj.setArguments(bundle);
+
+                    fragmentTransaction.replace(R.id.fragment_container, fragobj);
+                    fragmentTransaction.commit();
+                    //Log.d("poi", title);
+                }
+            }
+            return false;
+        });
+
+        cardview.addView(linearLayout);
         return cardview;
 
     }

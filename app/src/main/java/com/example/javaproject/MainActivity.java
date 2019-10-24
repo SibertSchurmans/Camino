@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -19,7 +23,12 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements TaskLoadedCallback{
+
+    private GoogleMap mMap;
+    private Polyline currentPolyLine;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,4 +89,11 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyLine != null)
+            currentPolyLine.remove();
+        currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
+    }
 }
