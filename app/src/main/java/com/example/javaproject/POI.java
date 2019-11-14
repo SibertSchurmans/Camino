@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class POI {
+    Integer Id;
     private String Title;
     private LatLng LatLng;
     private GoogleMap Mmap;
@@ -18,8 +19,9 @@ public class POI {
     private Map Mapper;
     private ArrayList<Bitmap> Images;
 
-    public POI(String title, LatLng latLng, GoogleMap mmap, String snippet, Map mapper, ArrayList<Bitmap> images)
+    public POI(Integer id, String title, LatLng latLng, GoogleMap mmap, String snippet, Map mapper, ArrayList<Bitmap> images)
     {
+        Id = id;
         Title=title;
         LatLng=latLng;
         Mmap=mmap;
@@ -27,6 +29,15 @@ public class POI {
         Mapper=mapper;
         Images= images;
         makeMarker();
+    }
+
+    public POI(Integer id, String title, LatLng latLng,String snippet, ArrayList<Bitmap> images)
+    {
+        Id = id;
+        Title=title;
+        LatLng=latLng;
+        Snippet=snippet;
+        Images= images;
     }
 
     private void makeMarker()
@@ -41,9 +52,13 @@ public class POI {
     {
         return Images;
     }
-
+    public String getTitle(){return Title;}
+    public String getSnippet(){return Snippet;};
     public LatLng getLatLng()
     {
         return LatLng;
+    }
+    public Integer getId(){
+        return Id;
     }
 }

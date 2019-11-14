@@ -3,6 +3,7 @@ package com.example.javaproject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -38,7 +41,6 @@ public class PoIFragment extends Fragment {
         FloatingActionButton mFab = v.findViewById(R.id.floatingActionButton2);
         FloatingActionButton mFab2 = v.findViewById(R.id.floatingActionButton3);
         FloatingActionButton mFab3 = v.findViewById(R.id.floatingActionButton4);
-
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,17 +75,31 @@ public class PoIFragment extends Fragment {
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.addView(categoryView);
 
-        mainLayout.addView(createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
-        mainLayout.addView(createPointOfInterests("Kathedraal van Santiago de Compostella", R.drawable.kathedraal, "Route: Santiago de Compostella", "Tags: Kathedraal, Santiago de Compostella", v));
+        //mainLayout.addView(createPointOfInterests("Toulouse", R.drawable.testimage, "Route: Tolosana", "Tags: Kerk, Toulouse, Tolosana", v));
+        //mainLayout.addView(createPointOfInterests("Kathedraal van Santiago de Compostella", R.drawable.kathedraal, "Route: Santiago de Compostella", "Tags: Kathedraal, Santiago de Compostella", v));
 
-        RelativeLayout relativeLayout = v.findViewById(R.id.layout);
+        class poiList extends ListPOI<POI>{
+            @Override
+            public void add(POI o) {
+                super.add(o);
+                mainLayout.addView(createPointOfInterests(o.getTitle(), o.getBitmaps().get(0), "Route: UCLL", "Tags: School", v));
+            }
+        }
+        poiList pois = new poiList();
+
+        GetPOI getter = new GetPOI(getContext());
+        ProgressBar loader = v.findViewById(R.id.loader);
+        getter.getPOIFragment(pois, loader);
+
+
+        RelativeLayout relativeLayout = v.findViewById(R.id.poiLayout);
         relativeLayout.addView(mainLayout);
 
         return v;
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public CardView createPointOfInterests(String title, int imageResource, String route, String tags, View v) {
+    public CardView createPointOfInterests(String title, Bitmap imageResource, String route, String tags, View v) {
 
 
         CardView cardview = new CardView(getContext());
@@ -107,7 +123,7 @@ public class PoIFragment extends Fragment {
 
         imageParams.gravity = Gravity.CENTER;
 
-        imageView.setImageResource(imageResource);
+        imageView.setImageBitmap(imageResource);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setPadding(0, 25, 0, 25);
@@ -120,17 +136,6 @@ public class PoIFragment extends Fragment {
         cardview.setCardBackgroundColor(Color.WHITE);
         cardview.setMaxCardElevation(30);
         cardview.setMaxCardElevation(6);
-        cardview.setOnTouchListener((v1, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-
-                }
-            }
-            return false;
-        });
-
-
-
 
         ViewGroup.MarginLayoutParams cardViewMarginParams = (ViewGroup.MarginLayoutParams) cardview.getLayoutParams();
         cardViewMarginParams.setMargins(50, 30, 50, 30);
@@ -170,7 +175,7 @@ public class PoIFragment extends Fragment {
                 case MotionEvent.ACTION_DOWN: {
                     Bundle bundle = new Bundle();
                     bundle.putString("Title", title);
-                    bundle.putInt("Image", imageResource);
+                    bundle.putInt("Image", 1);
 
                     // set Fragmentclass Arguments
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
