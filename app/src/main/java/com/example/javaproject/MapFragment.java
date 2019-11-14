@@ -68,7 +68,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     LatLng kerk = new LatLng(50.956471, 5.183986);
     private Polyline currentPolyLine;
     private Button navigationButton;
-    private HashMap<Marker,POI> markerPOIMap=new HashMap();
+    private HashMap<Marker,POI> markerPOIMap;
 
 
 
@@ -76,7 +76,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        markerPOIMap = new HashMap<>();
     }
 
     public MapFragment() {
@@ -105,16 +105,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
 
-        santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
-        ucll = new MarkerOptions().position(origin).title("Diepenbeek");
-        markerGenk = new MarkerOptions().position(genk).title("Genk").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-        markerKerk = new MarkerOptions().position(kerk).title("Kerk").icon(BitmapDescriptorFactory.fromAsset("Kerk.png"));
+        //santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
+        //ucll = new MarkerOptions().position(origin).title("Diepenbeek");
+        //markerGenk = new MarkerOptions().position(genk).title("Genk").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        //markerKerk = new MarkerOptions().position(kerk).title("Kerk").icon(BitmapDescriptorFactory.fromAsset("Kerk.png"));
 
-        mMap.addMarker(santiago);
-        mMap.addMarker(ucll);
-        mMap.addMarker(markerGenk);
-        mMap.addMarker(markerKerk);
-        getPOI();
+        //mMap.addMarker(santiago);
+        //mMap.addMarker(ucll);
+        //mMap.addMarker(markerGenk);
+        //mMap.addMarker(markerKerk);
+        GetPOI getter = new GetPOI(getContext(),mMap,markerPOIMap);
+        getter.getPOIMap();
 
         if (mGeoApiContext == null) {
             mGeoApiContext = new GeoApiContext.Builder()
@@ -136,6 +137,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
         CustomInfoWindowAdapter adapter = new CustomInfoWindowAdapter(getActivity(), markerPOIMap);
         mMap.setInfoWindowAdapter(adapter);
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                POI poi= markerPOIMap.get(marker);
+                Bundle bundle = new Bundle();
+                bundle.putString("Title", poi.getTitle());
+                bundle.putInt("Image", 1);
+
+                // set Fragmentclass Arguments
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                PoIClickedFragment fragobj = new PoIClickedFragment();
+                fragobj.setArguments(bundle);
+
+                fragmentTransaction.replace(R.id.fragment_container, fragobj);
+                fragmentTransaction.commit();
+            }
+        });
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null);
     }
@@ -194,50 +214,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onClick(View v) {
         new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
-    }
-
-    public void getPOI() {
-        final RequestQueue requestQueue;
-        Cache cache = new DiskBasedCache((getContext().getCacheDir()), 1024 * 1024);
-        Network network = new BasicNetwork((new HurlStack()));
-        requestQueue = new RequestQueue(cache, network);
-        requestQueue.start();
-        String url = "http://171.25.229.102:8229/point";
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                for(int i = 0; i<response.length();i++)
-                {
-                    try {
-                        JSONObject object = response.getJSONObject(i);
-                        String title = object.getString("name");
-                        String description = object.getString("description");
-                        LatLng latLng = new LatLng(object.getDouble("latitude"),object.getDouble("longitude"));
-                        JSONArray bMapArray = object.getJSONArray("photos");
-                        ArrayList<Bitmap> photos = new ArrayList<>();
-                        for(int a=0;a<bMapArray.length();a++)
-                        {
-                            byte[] bytes = Base64.decode(bMapArray.getJSONObject(a).getString("photo"), Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                            photos.add(bitmap);
-                        }
-                        POI poi = new POI(title,latLng,mMap,description,markerPOIMap,photos);
-                    }
-                    catch (Exception e)
-                    {
-                        Toast error = Toast.makeText(getContext().getApplicationContext(), e.getMessage(),Toast.LENGTH_LONG);
-                        error.show();
-                    }
-                }
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast fail = Toast.makeText(getContext().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG);
-                fail.show();
-            }
-        });
-        requestQueue.add(jsonArrayRequest);
     }
 }
