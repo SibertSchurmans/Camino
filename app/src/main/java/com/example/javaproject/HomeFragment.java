@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -30,6 +31,8 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
 
         TextView categoryView = new TextView(getContext());
 
@@ -48,7 +51,7 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public CardView createPointOfInterests(String title, int imageResource, String poiNumber, String tags, View v) {
+    public CardView createPointOfInterests(String title, int imageResource, String poiNumber, String kilometres, View v) {
         TextView categoryView = new TextView(getContext());
         CardView cardview = new CardView(getContext());
         ImageView imageView = new ImageView(getContext());
@@ -74,41 +77,33 @@ public class HomeFragment extends Fragment {
         cardview.setMaxCardElevation(15);
         cardview.setMaxCardElevation(6);
         cardview.getId();
-        cardview.setOnTouchListener((v1, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-
-                }
-            }
-            return false;
-        });
 
         ViewGroup.MarginLayoutParams cardViewMarginParams = (ViewGroup.MarginLayoutParams) cardview.getLayoutParams();
         cardViewMarginParams.setMargins(50, 30, 50, 30);
         cardview.requestLayout();
 
-        titleView.setText(title + "                 " + tags);
+        titleView.setText(title + "\nAfstand: " + kilometres);
         titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
         titleView.setTextColor(Color.WHITE);
         titleView.setGravity(Gravity.START);
         titleView.setPadding(20,0,0,0);
         titleView.setLayoutParams(textParams);
 
-        routeView.setText("Number of Poi:    " + poiNumber);
+        routeView.setText("Interessante locaties:    " + poiNumber);
         routeView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         routeView.setTextColor(Color.WHITE);
         routeView.setGravity(Gravity.START);
         routeView.setPadding(40,0,0,0);
         titleView.setLayoutParams(textParams);
 
-        imageParams.gravity=Gravity.CENTER;
-
-        imageView.setImageResource(imageResource);
-        imageView.setAdjustViewBounds(true);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imageView.setPadding(50,0,50,25);
-        imageView.setMaxHeight(300);
-        imageView.setLayoutParams(imageParams);
+//        imageParams.gravity=Gravity.CENTER;
+//
+//        imageView.setImageResource(imageResource);
+//        imageView.setAdjustViewBounds(true);
+//        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+//        imageView.setPadding(50,0,50,25);
+//        imageView.setMaxHeight(300);
+//        imageView.setLayoutParams(imageParams);
 
 
 
@@ -125,7 +120,8 @@ public class HomeFragment extends Fragment {
                 case MotionEvent.ACTION_DOWN: {
                     Intent intent = new Intent(getContext(), HomeRouteClickedActivity.class);
                     intent.putExtra("EXTRA_TITLE", title);
-                    intent.putExtra("EXTRA_TAGS", tags);
+                    intent.putExtra("EXTRA_KILOMETRES", kilometres);
+                    intent.putExtra("EXTRA_POINUMBER", poiNumber);
                     startActivity(intent);
                 }
             }
