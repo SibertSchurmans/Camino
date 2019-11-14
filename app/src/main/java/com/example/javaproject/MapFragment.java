@@ -147,8 +147,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
         // Mode
         String mode = "mode=" + directionMode;
+        //adding waypoints to the route
+        ArrayList<LatLng> wayPoints = new ArrayList<LatLng>();
+        LatLng paris = new LatLng(48.8588377, 2.2770202);
+        LatLng carcassone = new LatLng(43.2077961,2.3140611);
+        LatLng orleans = new LatLng(47.8733947,1.8421688);
+        wayPoints.add(paris);
+        wayPoints.add(orleans);
+        wayPoints.add(carcassone);
+        String wayPoint = "&waypoints=";
+        for(int i = 0; i <= wayPoints.size() - 1; i++){
+            LatLng point = wayPoints.get(i);
+            wayPoint += point.latitude + "," + point.longitude + "|";
+        }
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        String parameters = str_origin + "&" + str_dest + "&" + mode + wayPoint;
         // Output format
         String output = "json";
         // Building the url to the web service

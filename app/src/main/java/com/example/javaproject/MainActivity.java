@@ -25,11 +25,7 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 
-public class MainActivity extends AppCompatActivity
-        implements TaskLoadedCallback{
-
-    private GoogleMap mMap;
-    private Polyline currentPolyLine;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +43,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // Creating a Mongo client
-        MongoClient mongo = new MongoClient( "171.25.229.102" , 8229 );
+        MongoClient mongo = new MongoClient("171.25.229.102", 8229);
 
         // Creating Credentials
         MongoCredential credential;
@@ -57,12 +53,11 @@ public class MainActivity extends AppCompatActivity
 
         // Accessing the database
         MongoDatabase database = mongo.getDatabase("CaminoBackend");
-        System.out.println("Credentials ::"+ credential);
+        System.out.println("Credentials ::" + credential);
 
         // Retieving a collection
         MongoCollection<Document> collection = database.getCollection("pointOfInterest");
         System.out.println("Collection myCollection selected successfully");
-
 
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -97,12 +92,4 @@ public class MainActivity extends AppCompatActivity
                     return true;
                 }
             };
-
-    @Override
-    public void onTaskDone(Object... values) {
-        if (currentPolyLine != null){
-            currentPolyLine.remove();
-        }
-        currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
-    }
 }
