@@ -175,7 +175,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         wayPoints.add(paris);
         wayPoints.add(orleans);
         wayPoints.add(carcassone);
-        String wayPoint = "&waypoints=";
+        String wayPoint = "&waypoints=optimize:true|";
         for(int i = 0; i <= wayPoints.size() - 1; i++){
             LatLng point = wayPoints.get(i);
             wayPoint += point.latitude + "," + point.longitude + "|";
