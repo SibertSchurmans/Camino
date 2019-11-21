@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,8 +43,30 @@ public class HomeFragment extends Fragment {
         mainLayout.setLayoutParams(mainParams);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
 
-        mainLayout.addView( createPointOfInterests("Naam van Route 1", R.drawable.camino_route_test, "17", "25 Km", v));
-        mainLayout.addView( createPointOfInterests("Naam van Route 2", R.drawable.camino_route_test2, "24", "33 Km", v));
+        class routeList extends ListRoute<Route>{
+            @Override
+            public void add(Route o) {
+                super.add(o);
+
+                int size = 0;
+                if(o.getPoints().size() != 0){
+                    size = o.getPoints().size() + 1;
+                }
+
+                mainLayout.addView(createPointOfInterests(o.getId() ,o.getName(), size, "25 Km",  v));
+            }
+        }
+
+        routeList routes = new routeList();
+
+
+
+        GetRoute getter = new GetRoute(getContext());
+        ProgressBar loader = v.findViewById(R.id.loader);
+        getter.getRoutes(routes, loader) ;
+
+
+
 
         RelativeLayout relativeLayout = v.findViewById(R.id.layout);
         relativeLayout.addView(mainLayout);
@@ -51,8 +74,7 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public CardView createPointOfInterests(String title, int imageResource, String poiNumber, String kilometres, View v) {
-        TextView categoryView = new TextView(getContext());
+    public CardView createPointOfInterests(int routeId, String title, int poiNumber, String kilometres, View v) {
         CardView cardview = new CardView(getContext());
         ImageView imageView = new ImageView(getContext());
         TextView titleView = new TextView(getContext());
@@ -64,7 +86,6 @@ public class HomeFragment extends Fragment {
 
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams cardViewParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
 
         textLayout.setOrientation(LinearLayout.VERTICAL);
@@ -96,17 +117,6 @@ public class HomeFragment extends Fragment {
         routeView.setPadding(40,0,0,0);
         titleView.setLayoutParams(textParams);
 
-//        imageParams.gravity=Gravity.CENTER;
-//
-//        imageView.setImageResource(imageResource);
-//        imageView.setAdjustViewBounds(true);
-//        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-//        imageView.setPadding(50,0,50,25);
-//        imageView.setMaxHeight(300);
-//        imageView.setLayoutParams(imageParams);
-
-
-
         textLayout.addView(titleView);
         textLayout.addView(routeView);
         textLayout.addView(tagsView);
@@ -119,9 +129,8 @@ public class HomeFragment extends Fragment {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
                     Intent intent = new Intent(getContext(), HomeRouteClickedActivity.class);
-                    intent.putExtra("EXTRA_TITLE", title);
-                    intent.putExtra("EXTRA_KILOMETRES", kilometres);
-                    intent.putExtra("EXTRA_POINUMBER", poiNumber);
+                    intent.putExtra("EXTRA_ROUTEID", routeId);
+                    intent.putExtra("EXTRA_ROUTENAME", title);
                     startActivity(intent);
                 }
             }
