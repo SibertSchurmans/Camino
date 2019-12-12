@@ -2,20 +2,13 @@ package com.example.javaproject;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -82,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new PoIFragment();
                             break;
                         case R.id.nav_settings:
-                            selectedFragment = new SettingsFragment();
+                            selectedFragment = new WikiFragment();
                             break;
                     }
 
