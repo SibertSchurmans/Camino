@@ -27,6 +27,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.squareup.picasso.Picasso;
 
 
 public class PoIFragment extends Fragment {
@@ -122,6 +123,7 @@ public class PoIFragment extends Fragment {
 
         imageParams.gravity = Gravity.CENTER;
 
+        Picasso.get().load(poi.getPhotoLink()).placeholder(R.drawable.caminologo).error(R.drawable.caminologo).into(imageView);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setPadding(0, 25, 0, 25);
@@ -172,7 +174,6 @@ public class PoIFragment extends Fragment {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP: {
                     Bundle bundle = new Bundle();
-                    bundle.putString("Title", poi.getTitle());
                     bundle.putInt("Id", poi.getId());
 
                     // set Fragmentclass Arguments
