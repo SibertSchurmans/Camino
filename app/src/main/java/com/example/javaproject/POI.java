@@ -17,9 +17,9 @@ public class POI {
     private GoogleMap Mmap;
     private String Snippet;
     private Map Mapper;
-    private ArrayList<Bitmap> Images;
+    private String PhotoLink;
 
-    public POI(Integer id, String title, LatLng latLng, GoogleMap mmap, String snippet, Map mapper, ArrayList<Bitmap> images)
+    public POI(Integer id, String title, LatLng latLng, GoogleMap mmap, String snippet, Map mapper, String photoLink)
     {
         Id = id;
         Title=title;
@@ -27,17 +27,17 @@ public class POI {
         Mmap=mmap;
         Snippet=snippet;
         Mapper=mapper;
-        Images= images;
+        PhotoLink  = photoLink;
         makeMarker();
     }
 
-    public POI(Integer id, String title, LatLng latLng,String snippet, ArrayList<Bitmap> images)
+    public POI(Integer id, String title, LatLng latLng,String snippet, String photoLink)
     {
         Id = id;
         Title=title;
         LatLng=latLng;
         Snippet=snippet;
-        Images= images;
+        PhotoLink=photoLink;
     }
 
     private void makeMarker()
@@ -48,10 +48,7 @@ public class POI {
         Mapper.put(marker,this);
     }
 
-    public ArrayList<Bitmap> getBitmaps()
-    {
-        return Images;
-    }
+    public String getPhotoLink() {return PhotoLink;}
     public String getTitle(){return Title;}
     public String getSnippet(){return Snippet;};
     public LatLng getLatLng()

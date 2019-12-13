@@ -82,7 +82,7 @@ public class PoIFragment extends Fragment {
             @Override
             public void add(POI o) {
                 super.add(o);
-                mainLayout.addView(createPointOfInterests(o.getTitle(), o.getBitmaps().get(0), "Route: UCLL", "Tags: School", v));
+                mainLayout.addView(createPointOfInterests(o, "Route: UCLL", "Tags: School", v));
             }
         }
         poiList pois = new poiList();
@@ -91,7 +91,6 @@ public class PoIFragment extends Fragment {
         ProgressBar loader = v.findViewById(R.id.loader);
         getter.getPOIFragment(pois, loader);
 
-
         RelativeLayout relativeLayout = v.findViewById(R.id.poiLayout);
         relativeLayout.addView(mainLayout);
 
@@ -99,7 +98,7 @@ public class PoIFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public CardView createPointOfInterests(String title, Bitmap imageResource, String route, String tags, View v) {
+    public CardView createPointOfInterests(POI poi, String route, String tags, View v) {
 
 
         CardView cardview = new CardView(getContext());
@@ -123,7 +122,6 @@ public class PoIFragment extends Fragment {
 
         imageParams.gravity = Gravity.CENTER;
 
-        imageView.setImageBitmap(imageResource);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setPadding(0, 25, 0, 25);
@@ -141,7 +139,7 @@ public class PoIFragment extends Fragment {
         cardViewMarginParams.setMargins(50, 30, 50, 30);
         cardview.requestLayout();
 
-        titleView.setText(title);
+        titleView.setText(poi.getTitle());
         titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
         titleView.setTextColor(Color.BLUE);
         titleView.setGravity(Gravity.START);
@@ -172,10 +170,10 @@ public class PoIFragment extends Fragment {
 
         cardview.setOnTouchListener((v1, event) -> {
             switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
+                case MotionEvent.ACTION_UP: {
                     Bundle bundle = new Bundle();
-                    bundle.putString("Title", title);
-                    bundle.putInt("Image", 1);
+                    bundle.putString("Title", poi.getTitle());
+                    bundle.putInt("Id", poi.getId());
 
                     // set Fragmentclass Arguments
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -189,7 +187,7 @@ public class PoIFragment extends Fragment {
                     //Log.d("poi", title);
                 }
             }
-            return false;
+            return true;
         });
 
         cardview.addView(linearLayout);

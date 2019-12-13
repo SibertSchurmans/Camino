@@ -36,6 +36,7 @@ public class GetPOI {
     private GoogleMap mMap;
     private Map<Marker,POI> markerPOIMap;
 
+
     public GetPOI(Context context, GoogleMap mmap, Map<Marker,POI> markerPOImap)
     {
         environment = context;
@@ -48,13 +49,15 @@ public class GetPOI {
         environment = context;
     }
 
-    public void getPOIMap() {
+
+
+    public void getPOIMap(){
         final RequestQueue requestQueue;
         Cache cache = new DiskBasedCache((environment.getCacheDir()), 1024 * 1024);
         Network network = new BasicNetwork((new HurlStack()));
         requestQueue = new RequestQueue(cache, network);
         requestQueue.start();
-        String url = "http://171.25.229.102:8229/point";
+        String url = "http://171.25.229.102:8229/api/point";
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -62,19 +65,31 @@ public class GetPOI {
                 {
                     try {
                         JSONObject object = response.getJSONObject(i);
-                        Integer id= object.getInt("id");
+                        int id= object.getInt("id");
                         String title = object.getString("name");
                         String description = object.getString("description");
                         LatLng latLng = new LatLng(object.getDouble("latitude"),object.getDouble("longitude"));
-                        JSONArray bMapArray = object.getJSONArray("photos");
-                        ArrayList<Bitmap> photos = new ArrayList<>();
-                        for(int a=0;a<bMapArray.length();a++)
-                        {
-                            byte[] bytes = Base64.decode(bMapArray.getJSONObject(a).getString("photo"), Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                            photos.add(bitmap);
-                        }
-                        POI poi = new POI(id,title,latLng,mMap,description,markerPOIMap,photos);
+                        JsonArrayRequest request=new JsonArrayRequest(Request.Method.GET, "http://171.25.229.102:8229/api/point/"+id+"/photos/", null, new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray answer) {
+                                try{
+                                String photo = answer.getString(0);
+                                POI poi = new POI(id,title,latLng,mMap,description,markerPOIMap,photo);
+                                }
+                                catch (Exception f)
+                                {
+                                    Toast error = Toast.makeText(environment.getApplicationContext(), f.getMessage(),Toast.LENGTH_LONG);
+                                    error.show();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast fail = Toast.makeText(environment.getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG);
+                                fail.show();
+                            }
+                        });
+                        requestQueue.add(request);
                     }
                     catch (Exception e)
                     {
@@ -82,7 +97,6 @@ public class GetPOI {
                         error.show();
                     }
                 }
-                requestQueue.stop();
             }
 
         }, new Response.ErrorListener() {
@@ -90,7 +104,6 @@ public class GetPOI {
             public void onErrorResponse(VolleyError error) {
                 Toast fail = Toast.makeText(environment.getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG);
                 fail.show();
-                requestQueue.stop();
             }
         });
         requestQueue.add(jsonArrayRequest);
@@ -103,7 +116,7 @@ public class GetPOI {
         Network network = new BasicNetwork((new HurlStack()));
         requestQueue = new RequestQueue(cache, network);
         requestQueue.start();
-        String url = "http://171.25.229.102:8229/point";
+        String url = "http://171.25.229.102:8229/api/point";
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -115,16 +128,8 @@ public class GetPOI {
                         String title = object.getString("name");
                         String description = object.getString("description");
                         LatLng latLng = new LatLng(object.getDouble("latitude"),object.getDouble("longitude"));
-                        JSONArray bMapArray = object.getJSONArray("photos");
-                        ArrayList<Bitmap> photos = new ArrayList<>();
-                        for(int a=0;a<bMapArray.length();a++)
-                        {
-                            byte[] bytes = Base64.decode(bMapArray.getJSONObject(a).getString("photo"), Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                            photos.add(bitmap);
-                        }
-                        POI poi = new POI(id,title,latLng,description,photos);
-                        listPOI.add(poi);
+                        //POI poi = new POI(id,title,latLng,description);
+                        //listPOI.add(poi);
                     }
                     catch (Exception e)
                     {
@@ -155,25 +160,16 @@ public class GetPOI {
         Network network = new BasicNetwork((new HurlStack()));
         requestQueue = new RequestQueue(cache, network);
         requestQueue.start();
-        String url = "http://171.25.229.102:8229/point/"+Id;
+        String url = "http://171.25.229.102:8229/api/point/"+Id;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-
                     Integer id= response.getInt("id");
                     String title = response.getString("name");
                     String description = response.getString("description");
                     LatLng latLng = new LatLng(response.getDouble("latitude"),response.getDouble("longitude"));
-                    JSONArray bMapArray = response.getJSONArray("photos");
-                    ArrayList<Bitmap> photos = new ArrayList<>();
-                    for(int a=0;a<bMapArray.length();a++)
-                    {
-                        byte[] bytes = Base64.decode(bMapArray.getJSONObject(a).getString("photo"), Base64.DEFAULT);
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
-                        photos.add(bitmap);
-                    }
-                    POI poi = new POI(id,title,latLng,description,photos);
+                    //POI poi = new POI(id,title,latLng,description);
                 }
                 catch (Exception e)
                 {
