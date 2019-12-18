@@ -42,7 +42,6 @@ public class WikiFragment extends Fragment {
         for (String key : bundle.keySet()) {
             string += bundle.get(key) + ";";
         }
-        //string += " }Bundle";
         return string;
     }
 
@@ -55,8 +54,10 @@ public class WikiFragment extends Fragment {
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
 
         String baseUrl = "http://171.25.229.102:8229/api/wiki/name/";
+        String baseUrlId = "http://171.25.229.102:8229/api/wiki/id/";
         String url;
 
+        boolean id = false;
 
         Bundle bundle = this.getArguments();
 
@@ -72,8 +73,20 @@ public class WikiFragment extends Fragment {
             sessionId = "hello world";
             oldSession = "";
         }
+        try{
+            int sessionId2 = Integer.parseInt(sessionId);
+            id = true;
+        }
+        catch (Exception ex){
 
+        }
+
+
+        if (id){
+            baseUrl = baseUrlId;
+        }
         url = baseUrl + sessionId;
+
         new JsonTask().execute(url);
 
         return view;
@@ -155,7 +168,7 @@ public class WikiFragment extends Fragment {
                 titleWiki = wikiPageContent.substring(startName+7, endName);
 
                 int startContent = wikiPageContent.indexOf("description\":\"");
-                int endContent = wikiPageContent.indexOf("\"}]");
+                int endContent = wikiPageContent.indexOf("\"}");
                 contentWiki = wikiPageContent.substring(startContent+14, endContent);
             }
             catch (Exception ex){
