@@ -174,19 +174,6 @@ public class PoIFragment extends Fragment {
         cardview.setOnTouchListener((v1, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP: {
-//                    Bundle bundle = new Bundle();
-//                    bundle.putInt("Id", poi.getId());
-//
-//                    // set Fragmentclass Arguments
-//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//
-//                    PoIClickedFragment fragobj = new PoIClickedFragment();
-//                    fragobj.setArguments(bundle);
-//
-//                    fragmentTransaction.replace(R.id.fragment_container, fragobj);
-//                    fragmentTransaction.commit();
-                    //Log.d("poi", title);
                     Intent intent = new Intent(getActivity(), PoiClickedActivity.class);
                     intent.putExtra("Id", poi.getId());
                     startActivity(intent);
