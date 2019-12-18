@@ -1,6 +1,7 @@
 package com.example.javaproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -141,19 +142,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void onInfoWindowClick(Marker marker) {
                 POI poi= markerPOIMap.get(marker);
-                Bundle bundle = new Bundle();
-                bundle.putString("Title", poi.getTitle());
-                bundle.putInt("Image", 1);
 
-                // set Fragmentclass Arguments
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Intent intent = new Intent(getActivity(), PoiClickedActivity.class);
+                intent.putExtra("Id", poi.getId());
+                startActivity(intent);
 
-                //PoIClickedFragment fragobj = new PoIClickedFragment();
-                //fragobj.setArguments(bundle);
-
-                //fragmentTransaction.replace(R.id.fragment_container, fragobj);
-                //fragmentTransaction.commit();
             }
         });
 

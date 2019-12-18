@@ -27,6 +27,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class HomeFragment extends Fragment {
     @Nullable
     @Override
@@ -50,10 +55,10 @@ public class HomeFragment extends Fragment {
 
                 int size = 0;
                 if(o.getPoints().size() != 0){
-                    size = o.getPoints().size() + 1;
+                    size = o.getPoints().size();
                 }
 
-                mainLayout.addView(createPointOfInterests(o.getId() ,o.getName(), size, "25 Km",  v));
+                mainLayout.addView(createPointOfInterests(o.getId() ,o.getName(), size, o.getPoints(),  v));
             }
         }
 
@@ -74,7 +79,7 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public CardView createPointOfInterests(int routeId, String title, int poiNumber, String kilometres, View v) {
+    public CardView createPointOfInterests(int routeId, String title, int poiNumber, ArrayList<Integer> points, View v) {
         CardView cardview = new CardView(getContext());
         ImageView imageView = new ImageView(getContext());
         TextView titleView = new TextView(getContext());
@@ -103,7 +108,7 @@ public class HomeFragment extends Fragment {
         cardViewMarginParams.setMargins(50, 30, 50, 30);
         cardview.requestLayout();
 
-        titleView.setText(title + "\nAfstand: " + kilometres);
+        titleView.setText(title);
         titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
         titleView.setTextColor(Color.WHITE);
         titleView.setGravity(Gravity.START);
@@ -131,6 +136,7 @@ public class HomeFragment extends Fragment {
                     Intent intent = new Intent(getContext(), HomeRouteClickedActivity.class);
                     intent.putExtra("EXTRA_ROUTEID", routeId);
                     intent.putExtra("EXTRA_ROUTENAME", title);
+                    intent.putIntegerArrayListExtra("EXTRA_POINTS", points);
                     startActivity(intent);
                 }
             }
@@ -142,6 +148,8 @@ public class HomeFragment extends Fragment {
         return cardview;
 
     }
+
+
 }
 
 
