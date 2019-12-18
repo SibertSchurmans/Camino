@@ -1,5 +1,6 @@
 package com.example.javaproject;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,6 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,6 +32,9 @@ import java.net.URL;
 public class WikiFragment extends Fragment {
     TextView myTextView;
     TextView titleTextView;
+    Button overviewButton;
+    ImageButton wikiSearchImageButton;
+    EditText wikiSearchEditText;
 
     private Context environment;
     private String wikiPageContent;
@@ -52,6 +59,9 @@ public class WikiFragment extends Fragment {
 
         myTextView = (TextView) view.findViewById(R.id.WikiContent);
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
+        overviewButton = (Button) view.findViewById(R.id.overviewButton);
+        wikiSearchImageButton = (ImageButton) view.findViewById(R.id.wikiSearchimageButton);
+        wikiSearchEditText = (EditText) view.findViewById(R.id.wikiSearchEditText);
 
         String baseUrl = "http://171.25.229.102:8229/api/wiki/name/";
         String baseUrlId = "http://171.25.229.102:8229/api/wiki/id/";
@@ -85,20 +95,22 @@ public class WikiFragment extends Fragment {
                     oldSession = bundleString.substring(placeNewString+1, length-1);
                 }
                 catch (Exception ex){
-                    sessionId = "hello world";
+                    sessionId = "Overzicht";
                     oldSession = "";
                 }
             }
         }
         else
         {
-            sessionId = "hello world";
+            sessionId = "Overzicht";
             oldSession = "";
         }
 
 
 
-
+        if(sessionId.equals("Overzicht")){
+            overviewButton.setVisibility(view.INVISIBLE);
+        }
 
         if (id){
             baseUrl = baseUrlId;
@@ -106,6 +118,40 @@ public class WikiFragment extends Fragment {
         url = baseUrl + sessionId;
 
         new JsonTask().execute(url);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String urlOverview = "http://171.25.229.102:8229/api/wiki/name/overzicht";
+                new JsonTask().execute(urlOverview);
+                titleTextView.setVisibility(View.VISIBLE);
+                overviewButton.setVisibility(View.INVISIBLE);
+            }
+        };
+
+        View.OnClickListener onClickListenerWiki = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String wikiSearchByName = wikiSearchEditText.getText().toString();
+                if (wikiSearchByName.equals("")){
+                    showAlertDialogButtonClicked("Foutmelding", "U heeft geen zoekopdracht ingegeven", "Ik heb het begrepen");
+                }
+                else{
+                    String urlWikiSearch = "http://171.25.229.102:8229/api/wiki/name/" + wikiSearchByName;
+                    new JsonTask().execute(urlWikiSearch);
+                    titleTextView.setVisibility(View.VISIBLE);
+                    if (wikiSearchByName.equalsIgnoreCase("overzicht")){
+                        overviewButton.setVisibility(View.INVISIBLE);
+                    }
+                    else{
+                        overviewButton.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        };
+
+        overviewButton.setOnClickListener(onClickListener);
+        wikiSearchImageButton.setOnClickListener(onClickListenerWiki);
 
         return view;
     }
@@ -188,6 +234,10 @@ public class WikiFragment extends Fragment {
                 int startContent = wikiPageContent.indexOf("description\":\"");
                 int endContent = wikiPageContent.indexOf("\"}");
                 contentWiki = wikiPageContent.substring(startContent+14, endContent);
+
+                if (contentWiki.indexOf("\\r\\n") != -1){
+                    contentWiki = contentWiki.replace("\\r\\n", "\n");
+                }
             }
             catch (Exception ex){
 
@@ -250,5 +300,20 @@ public class WikiFragment extends Fragment {
                 b++;
             }
         }
+    }
+
+    public void showAlertDialogButtonClicked(String title, String message, String positiveButton) {
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage(message);
+
+        // add a button
+        builder.setPositiveButton(positiveButton, null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
