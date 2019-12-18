@@ -241,6 +241,7 @@ public class WikiFragment extends Fragment {
                         getFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.fragment_container, wikiFragment)
+                                .addToBackStack(PoiClickedActivity.class.getSimpleName())
                                 .commit();
                     }
                 };

@@ -247,6 +247,7 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
             case android.R.id.home:
                 // API 5+ solution
                 onBackPressed();
+
                 return true;
 
             default:
