@@ -149,11 +149,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                PoIClickedFragment fragobj = new PoIClickedFragment();
-                fragobj.setArguments(bundle);
+                //PoIClickedFragment fragobj = new PoIClickedFragment();
+                //fragobj.setArguments(bundle);
 
-                fragmentTransaction.replace(R.id.fragment_container, fragobj);
-                fragmentTransaction.commit();
+                //fragmentTransaction.replace(R.id.fragment_container, fragobj);
+                //fragmentTransaction.commit();
             }
         });
 

@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".PoiClickedActivity"></activity>
+        <activity android:name=".PoiClickedActivity" />
         <activity
             android:name=".HomeRouteClickedActivity"
             android:theme="@style/AppTheme.NoActionBar" /> <!-- activity for splashscreen -->

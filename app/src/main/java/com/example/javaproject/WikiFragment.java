@@ -62,24 +62,42 @@ public class WikiFragment extends Fragment {
         Bundle bundle = this.getArguments();
 
         String bundleString = bundle2string(bundle);
-        try{
-            int placeNewString = bundleString.indexOf(";");
-            int length = bundleString.length();
+        if (bundle != null) {
+            if (bundle.getString("ID") != null) {
+                sessionId = bundle.getString("ID");
+                oldSession = "";
+                id = true;
 
-            sessionId = bundleString.substring(0,placeNewString);
-            oldSession = bundleString.substring(placeNewString+1, length-1);
+                url = baseUrlId + sessionId;
+
+                new JsonTask().execute(url);
+
+                return view;
+            }
+            else
+            {
+                try{
+                    int placeNewString = bundleString.indexOf(";");
+                    int length = bundleString.length();
+
+                    sessionId = bundleString.substring(0,placeNewString);
+
+                    oldSession = bundleString.substring(placeNewString+1, length-1);
+                }
+                catch (Exception ex){
+                    sessionId = "hello world";
+                    oldSession = "";
+                }
+            }
         }
-        catch (Exception ex){
+        else
+        {
             sessionId = "hello world";
             oldSession = "";
         }
-        try{
-            int sessionId2 = Integer.parseInt(sessionId);
-            id = true;
-        }
-        catch (Exception ex){
 
-        }
+
+
 
 
         if (id){
