@@ -1,6 +1,7 @@
 package com.example.javaproject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +15,7 @@ import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder;
 
 public class TagItemViewHolder extends ChildViewHolder implements View.OnClickListener{
     private TextView mTextView;
+    String fullName, name, id;
 
     public TagItemViewHolder(View itemView) {
         super(itemView);
@@ -22,12 +24,20 @@ public class TagItemViewHolder extends ChildViewHolder implements View.OnClickLi
     }
 
     public void bind(TagItem tagItem){
-        mTextView.setText(tagItem.name);
+        fullName = tagItem.name;
+        String[] parts = fullName.split("@");
+        name = parts[0];
+        id = parts[1];
+        mTextView.setText(name);
     }
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(v.getContext(), "position = " + getLayoutPosition(), Toast.LENGTH_SHORT).show();
+
+
+        Intent intent = new Intent(v.getContext(), PoiClickedActivity.class);
+        intent.putExtra("Id", Integer.parseInt(id));
+        v.getContext().startActivity(intent);
 
 //        Bundle bundle = new Bundle();
 //        bundle.putString("Title", "test");
