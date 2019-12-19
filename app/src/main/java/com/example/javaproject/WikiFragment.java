@@ -108,22 +108,23 @@ public class WikiFragment extends Fragment {
 
 
 
-        if(sessionId.equals("Overzicht")){
-            overviewButton.setVisibility(view.INVISIBLE);
-        }
-
         if (id){
             baseUrl = baseUrlId;
         }
         url = baseUrl + sessionId;
+        if(sessionId.equalsIgnoreCase("Overzicht")){
+            overviewButton.setVisibility(view.INVISIBLE);
+            url = "http://171.25.229.102:8229/api/wiki";
+        }
 
         new JsonTask().execute(url);
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String urlOverview = "http://171.25.229.102:8229/api/wiki/name/overzicht";
+                String urlOverview = "http://171.25.229.102:8229/api/wiki";
                 new JsonTask().execute(urlOverview);
+                sessionId = "overzicht";
                 titleTextView.setVisibility(View.VISIBLE);
                 overviewButton.setVisibility(View.INVISIBLE);
             }
@@ -134,18 +135,23 @@ public class WikiFragment extends Fragment {
             public void onClick(View v) {
                 String wikiSearchByName = wikiSearchEditText.getText().toString();
                 if (wikiSearchByName.equals("")){
-                    showAlertDialogButtonClicked("Foutmelding", "U heeft geen zoekopdracht ingegeven", "Ik heb het begrepen");
+                    showAlertDialogButtonClicked("Foutmelding", "U heeft geen zoekopdracht ingegeven.", "Ik heb het begrepen");
                 }
                 else{
-                    String urlWikiSearch = "http://171.25.229.102:8229/api/wiki/name/" + wikiSearchByName;
-                    new JsonTask().execute(urlWikiSearch);
-                    titleTextView.setVisibility(View.VISIBLE);
+                    String urlWikiSearch = "";
                     if (wikiSearchByName.equalsIgnoreCase("overzicht")){
                         overviewButton.setVisibility(View.INVISIBLE);
+                        urlWikiSearch = "http://171.25.229.102:8229/api/wiki";
+                        sessionId = "overzicht";
                     }
                     else{
                         overviewButton.setVisibility(View.VISIBLE);
+                        urlWikiSearch = "http://171.25.229.102:8229/api/wiki/name/" + wikiSearchByName;
+                        sessionId = wikiSearchByName;
                     }
+                    new JsonTask().execute(urlWikiSearch);
+                    titleTextView.setVisibility(View.VISIBLE);
+
                 }
             }
         };
@@ -222,25 +228,45 @@ public class WikiFragment extends Fragment {
             if (pd.isShowing()){
                 pd.dismiss();
             }
-            wikiPageContent = result;
-
+            int amountOfWikiWords = 0;
+            int indexWikiWordStart = 0;
+            int indexWikiWordEnd = 0;
+            String overviewContent = "Suggesties:\n\n";
             String titleWiki = "";
             String contentWiki = "";
-            try{
-                int startName = wikiPageContent.indexOf("name\":\"");
-                int endName = wikiPageContent.indexOf("\",\"description\":\"");
-                titleWiki = wikiPageContent.substring(startName+7, endName);
-
-                int startContent = wikiPageContent.indexOf("description\":\"");
-                int endContent = wikiPageContent.indexOf("\"}");
-                contentWiki = wikiPageContent.substring(startContent+14, endContent);
-
-                if (contentWiki.indexOf("\\r\\n") != -1){
-                    contentWiki = contentWiki.replace("\\r\\n", "\n");
+            if (sessionId.equalsIgnoreCase("overzicht")){
+                while (result.indexOf("\"name\":", indexWikiWordStart) != -1 && amountOfWikiWords < 100){
+                    indexWikiWordStart = result.indexOf("\"name\":", indexWikiWordStart);
+                    indexWikiWordEnd = result.indexOf("\",\"description\":\"", indexWikiWordEnd);
+                    String wikiWord = result.substring(indexWikiWordStart+8,indexWikiWordEnd);
+                    overviewContent = overviewContent + "- [" + wikiWord + "]\n";
+                    indexWikiWordStart += 1;
+                    indexWikiWordEnd += 1;
+                    amountOfWikiWords += 1;
                 }
+                titleWiki = "Overzicht";
+                contentWiki = overviewContent;
             }
-            catch (Exception ex){
+            else{
+                wikiPageContent = result;
+                titleWiki = "";
+                contentWiki = "";
+                try{
+                    int startName = wikiPageContent.indexOf("name\":\"");
+                    int endName = wikiPageContent.indexOf("\",\"description\":\"");
+                    titleWiki = wikiPageContent.substring(startName+7, endName);
 
+                    int startContent = wikiPageContent.indexOf("description\":\"");
+                    int endContent = wikiPageContent.indexOf("\"}");
+                    contentWiki = wikiPageContent.substring(startContent+14, endContent);
+
+                    if (contentWiki.indexOf("\\r\\n") != -1){
+                        contentWiki = contentWiki.replace("\\r\\n", "\n");
+                    }
+                }
+                catch (Exception ex){
+
+                }
             }
 
             titleTextView.setText(titleWiki);
