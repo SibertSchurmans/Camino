@@ -51,7 +51,7 @@ public class GetRoute {
         Network network = new BasicNetwork((new HurlStack()));
         requestQueue = new RequestQueue(cache, network);
         requestQueue.start();
-        String url = "http://171.25.229.102:8229/route";
+        String url = "http://171.25.229.102:8229/api/route";
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -109,7 +109,7 @@ public class GetRoute {
         Network network = new BasicNetwork((new HurlStack()));
         requestQueue = new RequestQueue(cache, network);
         requestQueue.start();
-        String url = "http://171.25.229.102:8229/route/"+Id;
+        String url = "http://171.25.229.102:8229/api/route/"+Id;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -130,7 +130,7 @@ public class GetRoute {
                         Integer pointId = jPointsArray.getJSONObject(a).getInt("id");
                         String pointName = jPointsArray.getJSONObject(a).getString("name");
                         LatLng latLng = new LatLng(jPointsArray.getJSONObject(a).getDouble("latitude"),jPointsArray.getJSONObject(a).getDouble("longitude"));
-                        tagItems.add(new TagItem(pointName));
+                        tagItems.add(new TagItem(pointName +"@"+ pointId));
 
                         pointsIdList.add(pointId);
                     }
@@ -144,6 +144,8 @@ public class GetRoute {
 
                     TagItemAdapter adapter = new TagItemAdapter(tags);
                     recyclerView.setAdapter(adapter);
+
+
 
                 }
                 catch (Exception e)

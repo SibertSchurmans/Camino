@@ -18,10 +18,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
@@ -34,6 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static com.android.volley.VolleyLog.TAG;
 
@@ -52,6 +57,7 @@ public class HomeRouteClickedActivity extends AppCompatActivity
     private GoogleMap mMap;
     ProgressBar loader;
     RecyclerView recyclerView;
+    ArrayList<Integer> pointsId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +83,7 @@ public class HomeRouteClickedActivity extends AppCompatActivity
         //data ophalen
         Integer routeId = getIntent().getIntExtra("EXTRA_ROUTEID", 1);
         String routeName = getIntent().getStringExtra("EXTRA_ROUTENAME");
+        pointsId = getIntent().getIntegerArrayListExtra("EXTRA_POINTS");
 
         //data gebruiken
         getSupportActionBar().setTitle(routeName);
@@ -107,11 +114,30 @@ public class HomeRouteClickedActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        class Lpoi extends ListPOI<POI>{
+            @Override
+            public void add(POI o){
+                builder.include(o.getLatLng());
+                mMap.addMarker(new MarkerOptions().position(o.getLatLng()).title(o.getTitle()));
+                Log.d(TAG, "add: " + builder);
+                LatLngBounds bounds = builder.build();
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+            }
+
+        }
+
+        GetPOI getter =new GetPOI(this);
+        Lpoi lpoi = new Lpoi();
+
+        for(int i = 0; i < pointsId.size(); i++){
+
+            getter.getPOIbyId(pointsId.get(i),lpoi);
+        }
+
+
+
     }
 
 }
