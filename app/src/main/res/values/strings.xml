@@ -2,4 +2,12 @@
     <string name="app_name">JavaProject</string>
     <string name="title_activity_maps">Map</string>
     <string name="MapButtton">Get Direction</string>
+    <string name="Help_main_title">Help Section</string>
+    <string name="select_route_title">Een route selecteren</string>
+    <string name="select_route_text">Om een route te kiezen ga je naar de homescreen. Op de homescreen zie je een lijst van meedere routes. Als je één van deze routes selecteert zal deze worden ingeladen op de kaart en kun je deze route beginnen.</string>
+    <string name="watch_location_title">Locaties bekijken</string>
+    <string name="watch_location_text">Om alle gemaakte foto’s binnen de app te bekijken ga je naar het overzicht van de locaties. Deze kun je terugvinden in het tabblad locations. Wanneer je dit tabblad opent zie een lijst met verschillende locaties. Als je op een bepaalde locatie drukt krijg je meer info over de locatie alsook meerdere foto’s. Binnen de pagina locations kun je filteren op een bepaalde categorie, zodat je alleen de locaties van een bepaalde categorie kan zien.</string>
+    <string name="add_location_title">Locaties toevoegen</string>
+    <string name="add_location_text"> Om foto’s te maken via de app ga je naar de pagina locations. Onderaan de pagina zie je een knop met een plus-icoon. Als je op deze knop drukt krijg je 2 kleinere knoppen. De bovenste knop heeft het icoon van een camera. Als je hierop drukt opent de camera van je gsm. De foto’s die je dan neemt kan je toevoegen aan de locatie die je wilt aanmaken.</string>
+    <string name="add_location_text_2">Om foto’s te uploaden vanaf je gsm ga je naar de pagina locations. Onderaan de pagina zie je een knop met een plus-icoon. Als je op deze knop drukt krijg je 2 kleinere knoppen. De onderste knop heeft het icoon van een foto. Als je hierop drukt, kom je in de galerij van je gsm terecht. Hier kun je de foto’s selecteren die je wilt uploaden, en deze toevoegen aan de locatie die je wilt aanmaken.</string>
 </resources>

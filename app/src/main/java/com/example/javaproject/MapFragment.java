@@ -1,9 +1,11 @@
 package com.example.javaproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -55,7 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback,
-        GoogleMap.OnPolylineClickListener, TaskLoadedCallback, View.OnClickListener{
+        GoogleMap.OnPolylineClickListener, View.OnClickListener{
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private GeoApiContext mGeoApiContext = null;
@@ -69,7 +71,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private Polyline currentPolyLine;
     private Button navigationButton;
     private HashMap<Marker,POI> markerPOIMap;
-
+    private ArrayList<LatLng> route;
 
 
 
@@ -80,6 +82,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public MapFragment() {
+
     }
 
 
@@ -97,6 +100,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             ft.replace(R.id.map, mapFragment).commit();
         }
         mapFragment.getMapAsync(this);
+
+        route = new ArrayList<>();
+
         return v;
     }
 
@@ -105,8 +111,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
 
-        //santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
-        //ucll = new MarkerOptions().position(origin).title("Diepenbeek");
+        santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
+        ucll = new MarkerOptions().position(origin).title("Diepenbeek");
         //markerGenk = new MarkerOptions().position(genk).title("Genk").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         //markerKerk = new MarkerOptions().position(kerk).title("Kerk").icon(BitmapDescriptorFactory.fromAsset("Kerk.png"));
 
@@ -158,6 +164,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         });
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null);
+    }
+
+    private String getRoute(ArrayList<LatLng> route){
+
+        int size = route.size();
+        String str_origin = "origin=" + route.get(0).latitude + "," + route.get(0).longitude;
+        // Destination of route
+        String str_dest = "destination=" + route.get(size - 1).latitude + "," + route.get(size - 1).longitude;
+        // Mode
+        String mode = "mode=walking";
+
+        String wayPoint = "&waypoints=optimize:true|";
+        for(int i = 1; i < route.size() - 1; i++){
+            LatLng point = route.get(i);
+            wayPoint += point.latitude + "," + point.longitude + "|";
+        }
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode + wayPoint;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
     }
 
     private String getUrl(LatLng origin, LatLng dest, String directionMode) {
@@ -217,15 +246,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
-    @Override
-    public void onTaskDone(Object... values) {
-        if (currentPolyLine != null){
-            currentPolyLine.remove();
-        }currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
-    }
+    /*class ReadUrl extends AsyncTask<Void, Object, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            new FetchURL(getContext()).execute(getRoute(route), "walking");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object... objects) {
+            if (currentPolyLine != null){
+                currentPolyLine.remove();
+            }currentPolyLine = mMap.addPolyline((PolylineOptions) objects[0]);
+        }
+    }*/
 
     @Override
     public void onClick(View v) {
-        new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
+        new FetchURL(getContext()).execute(getRoute(route), "walking");
+        //new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
     }
 }
