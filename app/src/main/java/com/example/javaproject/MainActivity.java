@@ -25,7 +25,8 @@ import org.bson.Document;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements TaskLoadedCallback{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,4 +93,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    @Override
+    public void onTaskDone(Object... values) {
+
+    }
 }

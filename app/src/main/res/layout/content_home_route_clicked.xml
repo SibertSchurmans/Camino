@@ -66,5 +66,26 @@
             app:layout_constraintTop_toBottomOf="@+id/map"
             tools:visibility="invisible" />
 
+        <Button
+            android:id="@+id/getRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:text="Get Route"
+            app:layout_constraintEnd_toEndOf="@+id/loader"
+            app:layout_constraintTop_toBottomOf="@+id/loader" />
+
+        <Button
+            android:id="@+id/navigateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:text="Show on map"
+            app:layout_constraintBottom_toBottomOf="@+id/getRoute"
+            app:layout_constraintStart_toEndOf="@+id/getRoute" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -66,12 +66,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private MarkerOptions santiago, ucll, markerGenk, markerKerk;
     LatLng dest = new LatLng(42.878212, -8.544844);
     LatLng origin = new LatLng(50.90769, 5.41875);
-    LatLng genk = new LatLng(50.957502, 5.482947);
-    LatLng kerk = new LatLng(50.956471, 5.183986);
+    LatLng paris = new LatLng(48.8588377, 2.2770202);
+    LatLng carcassone = new LatLng(43.2077961,2.3140611);
+    LatLng orleans = new LatLng(47.8733947,1.8421688);
     private Polyline currentPolyLine;
     private Button navigationButton;
     private HashMap<Marker,POI> markerPOIMap;
     private ArrayList<LatLng> route;
+    private ArrayList<String> pointNames;
 
 
 
@@ -102,6 +104,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mapFragment.getMapAsync(this);
 
         route = new ArrayList<>();
+        pointNames = new ArrayList<>();
+
+        Bundle bundle = this.getArguments();
+        //route = (ArrayList<LatLng>) bundle.getSerializable("route");
+        //pointNames = bundle.getStringArrayList("names");
 
         return v;
     }
@@ -111,10 +118,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
 
-        santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
-        ucll = new MarkerOptions().position(origin).title("Diepenbeek");
+        //santiago = new MarkerOptions().position(dest).title("Santiago De Compostella");
+        //ucll = new MarkerOptions().position(origin).title("Diepenbeek");
         //markerGenk = new MarkerOptions().position(genk).title("Genk").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         //markerKerk = new MarkerOptions().position(kerk).title("Kerk").icon(BitmapDescriptorFactory.fromAsset("Kerk.png"));
+
+        route.add(origin);
+        route.add(paris);
+        route.add(carcassone);
+        route.add(orleans);
+        route.add(dest);
+
+        pointNames.add("UCLL");
+        pointNames.add("Parijs");
+        pointNames.add("Carcassone");
+        pointNames.add("Orléans");
+        pointNames.add("Santiago De Compostella");
 
         //mMap.addMarker(santiago);
         //mMap.addMarker(ucll);
@@ -159,7 +178,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private String getRoute(ArrayList<LatLng> route){
-
         int size = route.size();
         String str_origin = "origin=" + route.get(0).latitude + "," + route.get(0).longitude;
         // Destination of route
@@ -167,10 +185,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         // Mode
         String mode = "mode=walking";
 
+        mMap.addMarker(new MarkerOptions().position(route.get(0)).title(pointNames.get(0)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.addMarker(new MarkerOptions().position(route.get(size-1)).title(pointNames.get(size-1)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
         String wayPoint = "&waypoints=optimize:true|";
         for(int i = 1; i < route.size() - 1; i++){
             LatLng point = route.get(i);
             wayPoint += point.latitude + "," + point.longitude + "|";
+            mMap.addMarker(new MarkerOptions().position(route.get(i)).title(pointNames.get(i)));
         }
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + mode + wayPoint;
@@ -256,7 +278,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onClick(View v) {
-        new FetchURL(getContext()).execute(getRoute(route), "walking");
-        //new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
+        if(route != null){
+            new FetchURL(getContext()).execute(getRoute(route), "walking");
+            //new FetchURL(getContext()).execute(getUrl(ucll.getPosition(), santiago.getPosition(), "walking"), "walking");
+        }
     }
 }
