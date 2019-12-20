@@ -1,6 +1,7 @@
 package com.example.javaproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.volley.Cache;
@@ -17,10 +18,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -39,6 +43,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,12 +57,17 @@ import java.util.Map;
 import static com.android.volley.VolleyLog.TAG;
 
 public class HomeRouteClickedActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, TaskLoadedCallback{
 
     private GoogleMap mMap;
     ProgressBar loader;
     RecyclerView recyclerView;
     ArrayList<Integer> pointsId;
+    ArrayList<LatLng> route;
+    Polyline currentPolyLine;
+    Button getRoute, navigateButton;
+    ArrayList<String> pointNames;
+    MapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +76,31 @@ public class HomeRouteClickedActivity extends AppCompatActivity
 
         loader = findViewById(R.id.loader);
         recyclerView = findViewById(R.id.recviewTagItems);
+        getRoute = findViewById(R.id.getRoute);
+        navigateButton = findViewById(R.id.navigateButton);
+        mapFragment = new MapFragment();
+        route = new ArrayList<>();
+        pointNames = new ArrayList<>();
+        getRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new FetchURL(HomeRouteClickedActivity.this).execute(getRoute(route), "walking");
+            }
+        });
+        navigateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle args = new Bundle();
+
+                Log.d("bundleTest", pointNames.toString());
+                Log.d("bundleTest", route.toString());
+                args.putStringArrayList("names", pointNames);
+                args.putSerializable("route", route);
+                mapFragment.setArguments(args);
+                /*getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        mapFragment).commit();*/
+            }
+        });
 
         // Google maps
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -97,7 +132,6 @@ public class HomeRouteClickedActivity extends AppCompatActivity
 
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -120,6 +154,9 @@ public class HomeRouteClickedActivity extends AppCompatActivity
             @Override
             public void add(POI o){
                 builder.include(o.getLatLng());
+                route.add(o.getLatLng());
+                pointNames.add(o.getTitle());
+                Log.d("arrayTest", route.toString());
                 mMap.addMarker(new MarkerOptions().position(o.getLatLng()).title(o.getTitle()));
                 Log.d(TAG, "add: " + builder);
                 LatLngBounds bounds = builder.build();
@@ -140,4 +177,35 @@ public class HomeRouteClickedActivity extends AppCompatActivity
 
     }
 
+    private String getRoute(ArrayList<LatLng> route){
+        int size = route.size();
+        String str_origin = "origin=" + route.get(0).latitude + "," + route.get(0).longitude;
+        // Destination of route
+        String str_dest = "destination=" + route.get(size - 1).latitude + "," + route.get(size - 1).longitude;
+        // Mode
+        String mode = "mode=walking";
+
+        mMap.addMarker(new MarkerOptions().position(route.get(0)).title(pointNames.get(0)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.addMarker(new MarkerOptions().position(route.get(size-1)).title(pointNames.get(size-1)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+        String wayPoint = "&waypoints=optimize:true|";
+        for(int i = 1; i < route.size() - 1; i++){
+            LatLng point = route.get(i);
+            wayPoint += point.latitude + "," + point.longitude + "|";
+        }
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode + wayPoint;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyLine != null){
+            currentPolyLine.remove();
+        }currentPolyLine = mMap.addPolyline((PolylineOptions) values[0]);
+    }
 }
