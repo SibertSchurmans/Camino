@@ -213,7 +213,7 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
                 if (mAreas.get(i).contains((int) event.getX(), (int) event.getY())) {
                     //Toast.makeText(v.getContext(), map.get(i).get("forwardType").toString() + " " + map.get(i).get("forwardId").toString(), Toast.LENGTH_SHORT).show();
 
-                    if (map.get(i).get("forwardType").toString() == "wiki") {
+                    if (map.get(i).get("forwardType").toString().equals("wiki")) {
                         Bundle bundle = new Bundle();
                         bundle.putString("ID", map.get(i).get("forwardId").toString());
 
@@ -228,7 +228,7 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
 
                         return true;
                     }
-                    else if(map.get(i).get("forwardType").toString() == "image") {
+                    else if(map.get(i).get("forwardType").toString().equals("image")) {
                         Intent intent = new Intent(this, PoiClickedActivity.class);
                         intent.putExtra("Id",  (int)map.get(i).get("forwardId"));
                         startActivity(intent);
