@@ -1,5 +1,6 @@
 package com.example.javaproject;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,6 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,6 +32,9 @@ import java.net.URL;
 public class WikiFragment extends Fragment {
     TextView myTextView;
     TextView titleTextView;
+    Button overviewButton;
+    ImageButton wikiSearchImageButton;
+    EditText wikiSearchEditText;
 
     private Context environment;
     private String wikiPageContent;
@@ -52,6 +59,9 @@ public class WikiFragment extends Fragment {
 
         myTextView = (TextView) view.findViewById(R.id.WikiContent);
         titleTextView = (TextView) view.findViewById(R.id.titleTextView);
+        overviewButton = (Button) view.findViewById(R.id.overviewButton);
+        wikiSearchImageButton = (ImageButton) view.findViewById(R.id.wikiSearchimageButton);
+        wikiSearchEditText = (EditText) view.findViewById(R.id.wikiSearchEditText);
 
         String baseUrl = "http://171.25.229.102:8229/api/wiki/name/";
         String baseUrlId = "http://171.25.229.102:8229/api/wiki/id/";
@@ -85,18 +95,16 @@ public class WikiFragment extends Fragment {
                     oldSession = bundleString.substring(placeNewString+1, length-1);
                 }
                 catch (Exception ex){
-                    sessionId = "hello world";
+                    sessionId = "Overzicht";
                     oldSession = "";
                 }
             }
         }
         else
         {
-            sessionId = "hello world";
+            sessionId = "Overzicht";
             oldSession = "";
         }
-
-
 
 
 
@@ -104,8 +112,52 @@ public class WikiFragment extends Fragment {
             baseUrl = baseUrlId;
         }
         url = baseUrl + sessionId;
+        if(sessionId.equalsIgnoreCase("Overzicht")){
+            overviewButton.setVisibility(view.INVISIBLE);
+            url = "http://171.25.229.102:8229/api/wiki";
+        }
 
         new JsonTask().execute(url);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String urlOverview = "http://171.25.229.102:8229/api/wiki";
+                new JsonTask().execute(urlOverview);
+                sessionId = "overzicht";
+                titleTextView.setVisibility(View.VISIBLE);
+                overviewButton.setVisibility(View.INVISIBLE);
+            }
+        };
+
+        View.OnClickListener onClickListenerWiki = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String wikiSearchByName = wikiSearchEditText.getText().toString();
+                if (wikiSearchByName.equals("")){
+                    showAlertDialogButtonClicked("Foutmelding", "U heeft geen zoekopdracht ingegeven.", "Ik heb het begrepen");
+                }
+                else{
+                    String urlWikiSearch = "";
+                    if (wikiSearchByName.equalsIgnoreCase("overzicht")){
+                        overviewButton.setVisibility(View.INVISIBLE);
+                        urlWikiSearch = "http://171.25.229.102:8229/api/wiki";
+                        sessionId = "overzicht";
+                    }
+                    else{
+                        overviewButton.setVisibility(View.VISIBLE);
+                        urlWikiSearch = "http://171.25.229.102:8229/api/wiki/name/" + wikiSearchByName;
+                        sessionId = wikiSearchByName;
+                    }
+                    new JsonTask().execute(urlWikiSearch);
+                    titleTextView.setVisibility(View.VISIBLE);
+
+                }
+            }
+        };
+
+        overviewButton.setOnClickListener(onClickListener);
+        wikiSearchImageButton.setOnClickListener(onClickListenerWiki);
 
         return view;
     }
@@ -176,21 +228,45 @@ public class WikiFragment extends Fragment {
             if (pd.isShowing()){
                 pd.dismiss();
             }
-            wikiPageContent = result;
-
+            int amountOfWikiWords = 0;
+            int indexWikiWordStart = 0;
+            int indexWikiWordEnd = 0;
+            String overviewContent = "Suggesties:\n\n";
             String titleWiki = "";
             String contentWiki = "";
-            try{
-                int startName = wikiPageContent.indexOf("name\":\"");
-                int endName = wikiPageContent.indexOf("\",\"description\":\"");
-                titleWiki = wikiPageContent.substring(startName+7, endName);
-
-                int startContent = wikiPageContent.indexOf("description\":\"");
-                int endContent = wikiPageContent.indexOf("\"}");
-                contentWiki = wikiPageContent.substring(startContent+14, endContent);
+            if (sessionId.equalsIgnoreCase("overzicht")){
+                while (result.indexOf("\"name\":", indexWikiWordStart) != -1 && amountOfWikiWords < 100){
+                    indexWikiWordStart = result.indexOf("\"name\":", indexWikiWordStart);
+                    indexWikiWordEnd = result.indexOf("\",\"description\":\"", indexWikiWordEnd);
+                    String wikiWord = result.substring(indexWikiWordStart+8,indexWikiWordEnd);
+                    overviewContent = overviewContent + "- [" + wikiWord + "]\n";
+                    indexWikiWordStart += 1;
+                    indexWikiWordEnd += 1;
+                    amountOfWikiWords += 1;
+                }
+                titleWiki = "Overzicht";
+                contentWiki = overviewContent;
             }
-            catch (Exception ex){
+            else{
+                wikiPageContent = result;
+                titleWiki = "";
+                contentWiki = "";
+                try{
+                    int startName = wikiPageContent.indexOf("name\":\"");
+                    int endName = wikiPageContent.indexOf("\",\"description\":\"");
+                    titleWiki = wikiPageContent.substring(startName+7, endName);
 
+                    int startContent = wikiPageContent.indexOf("description\":\"");
+                    int endContent = wikiPageContent.indexOf("\"}");
+                    contentWiki = wikiPageContent.substring(startContent+14, endContent);
+
+                    if (contentWiki.indexOf("\\r\\n") != -1){
+                        contentWiki = contentWiki.replace("\\r\\n", "\n");
+                    }
+                }
+                catch (Exception ex){
+
+                }
             }
 
             titleTextView.setText(titleWiki);
@@ -250,5 +326,20 @@ public class WikiFragment extends Fragment {
                 b++;
             }
         }
+    }
+
+    public void showAlertDialogButtonClicked(String title, String message, String positiveButton) {
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage(message);
+
+        // add a button
+        builder.setPositiveButton(positiveButton, null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

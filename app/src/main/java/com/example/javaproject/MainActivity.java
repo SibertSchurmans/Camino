@@ -1,6 +1,7 @@
 package com.example.javaproject;
 
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -9,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -17,8 +22,11 @@ import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity
+        implements TaskLoadedCallback{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,4 +93,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    @Override
+    public void onTaskDone(Object... values) {
+
+    }
 }

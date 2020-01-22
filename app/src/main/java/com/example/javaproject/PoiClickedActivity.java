@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -62,7 +63,7 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         image.setImageResource(R.drawable.caminologo);
-        image.setOnTouchListener(this);
+
 
         GetPOI getter =new GetPOI(this);
         class Lpoi extends ListPOI<POI>{
@@ -107,7 +108,10 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
 
                 @Override
                 protected void onPostExecute(Bitmap results) {
+
+
                     image.setImageBitmap(results);
+                    image.setOnTouchListener(PoiClickedActivity.this::onTouch);
                     bitmap = results;
                     setAreas();
                 }
@@ -207,21 +211,28 @@ public class PoiClickedActivity extends AppCompatActivity implements View.OnTouc
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             for (int i = 0; i < mAreas.size(); i++) {
                 if (mAreas.get(i).contains((int) event.getX(), (int) event.getY())) {
-                    Toast.makeText(v.getContext(), map.get(i).get("forwardType").toString() + " " + map.get(i).get("forwardId").toString(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(v.getContext(), map.get(i).get("forwardType").toString() + " " + map.get(i).get("forwardId").toString(), Toast.LENGTH_SHORT).show();
 
-                    Bundle bundle = new Bundle();
-                    bundle.putString("ID", map.get(i).get("forwardId").toString());
+                    if (map.get(i).get("forwardType").toString().equals("wiki")) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("ID", map.get(i).get("forwardId").toString());
 
-                    WikiFragment wikiFragment = new WikiFragment();
-                    wikiFragment.setArguments(bundle);
+                        WikiFragment wikiFragment = new WikiFragment();
+                        wikiFragment.setArguments(bundle);
 
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .add(R.id.fragment_container, wikiFragment)
-                            .addToBackStack(PoiClickedActivity.class.getSimpleName())
-                            .commit();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .add(R.id.fragment_container, wikiFragment)
+                                .addToBackStack(PoiClickedActivity.class.getSimpleName())
+                                .commit();
 
-                    return true;
+                        return true;
+                    }
+                    else if(map.get(i).get("forwardType").toString().equals("image")) {
+                        Intent intent = new Intent(this, PoiClickedActivity.class);
+                        intent.putExtra("Id",  (int)map.get(i).get("forwardId"));
+                        startActivity(intent);
+                    }
                 }
 
             }
