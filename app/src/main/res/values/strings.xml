@@ -2,4 +2,14 @@
     <string name="app_name">JavaProject</string>
     <string name="title_activity_maps">Map</string>
     <string name="MapButtton">Get Direction</string>
+    <string name="poi_name_label">Naam:</string>
+    <string name="poi_camino_label">Camino:</string>
+    <string name="poi_tags_label">Tags:</string>
+    <string name="poi_add_button">Toevoegen</string>
+    <string-array name="caminos_array">
+        <item >Camino 1</item>
+        <item >Camino 2</item>
+        <item >Camino 3</item>
+        <item >Camino 4</item>
+    </string-array>
 </resources>

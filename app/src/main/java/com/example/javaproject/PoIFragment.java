@@ -28,7 +28,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.squareup.picasso.Picasso;
+//import com.squareup.picasso.Picasso;
 
 
 public class PoIFragment extends Fragment {
@@ -55,6 +55,24 @@ public class PoIFragment extends Fragment {
                     ViewAnimation.showOut(mFab2);
                     ViewAnimation.showOut(mFab3);
                 }
+
+            }
+        });
+
+        mFab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new AddPoiCameraFragment()).commit();
+
+            }
+        });
+
+        mFab3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new AddPoIFragment()).commit();
 
             }
         });
@@ -124,7 +142,7 @@ public class PoIFragment extends Fragment {
 
         imageParams.gravity = Gravity.CENTER;
 
-        Picasso.get().load(poi.getPhotoLink()).placeholder(R.drawable.caminologo).error(R.drawable.caminologo).into(imageView);
+        //Picasso.get().load(poi.getPhotoLink()).placeholder(R.drawable.caminologo).error(R.drawable.caminologo).into(imageView);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setPadding(0, 25, 0, 25);
